@@ -2,6 +2,7 @@ import csv
 import numpy as np
 from datetime import datetime
 
+
 data = []
 with open('small_uber_dataset.csv', 'r') as f:
 	count = 0
@@ -52,7 +53,18 @@ def assign_zones(max_lat, min_lat, max_lon, min_lon, delta, data):
 
 delta=0.01
 assign_zones(max_lat, min_lat, max_lon, min_lon, delta, data)
-#print(data)
+
+freq = dict()
+for line in data:
+	if (line[3], line[4]) in freq:
+		freq[(line[3], line[4])] += 1
+	else:
+		freq[(line[3], line[4])] = 1
+
+for keys,values in freq.items():
+    print(keys)
+    print(values)
+
 
 
 
