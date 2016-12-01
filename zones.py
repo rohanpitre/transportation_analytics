@@ -61,9 +61,9 @@ for line in data:
 	else:
 		freq[(line[3], line[4])] = 1
 
-for keys,values in freq.items():
-    print(keys)
-    print(values)
+for key in sorted(freq):
+    print(key)
+    print(freq[key])
 
 
 
