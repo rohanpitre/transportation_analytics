@@ -8,15 +8,21 @@ from sympy import Symbol
 
 
 #assigns each pickup to the closest point. delta is the distance between points
+#makes max_lat, max_long the largest index in the grid
 def assign_zones(max_lat, min_lat, max_lon, min_lon, delta, data):
 
-	lat_r = np.arange(min_lat, max_lat, delta)
-	lon_r = np.arange(min_lon, max_lon, delta)
+	delta_lat = delta / 69
+	delta_lon = delta / 52.49
+	print("delta_lat ", delta_lat)
+	print("delta_lon ", delta_lon)
+	lat_r = np.arange(min_lat, max_lat, delta_lat)
+	lon_r = np.arange(min_lon, max_lon, delta_lon)
 	lat_range = np.append(lat_r, max_lat)
 	lon_range = np.append(lon_r, max_lon)
 	#prints the list of points
 	print("lat range:", lat_range)
 	print("lon range:", lon_range)
+
 
 	#line[3] and line[4] are the coordinates of closest point
 	#line[5] and line[6] are numbered coordinates of closest point aka (0,1), (1,0) etc
@@ -38,19 +44,19 @@ def assign_zones(max_lat, min_lat, max_lon, min_lon, delta, data):
 		line.append(0)
 		line.append(0)	
 		for lat in lat_range:
-			if line[1] <= lat + delta/2:
+			if line[1] <= lat + delta_lat/2:
 				line[3] = lat
 				line[5] = lat_points[lat]
 				break
 		for lon in reversed(lon_range):
-			if line[2] <= lon + delta/2:
+			if line[2] <= lon + delta_lon/2:
 				line[4] = lon
 				line[6] = lon_points[lon]
 
-	return
+	return [i,j]
 
 
-
+#sample rectangle in Manhattan
 max_lat = 40.750790
 min_lat = 40.711246
 
@@ -76,27 +82,27 @@ with open('small_uber_dataset.csv', 'r') as f:
 			data.append(new_line[0:3])
 
 #print("data", data)
-
 #print(max_lat, min_lat, max_lon, min_lon)
 
-delta = 0.01
-print("delta", delta)
-assign_zones(max_lat, min_lat, max_lon, min_lon, delta, data)
+#delta in miles
+delta = 0.2
+print("delta", delta, " miles")
+[max_x, max_y] = assign_zones(max_lat, min_lat, max_lon, min_lon, delta, data)
 np_data = np.array(data)
 
-max_x = max(max([np_data[:,5]]))
-
-
-max_y = max(max([np_data[:,6]]))
+#max_x = max(max([np_data[:,6]]))
+#[np_data[:,5]]
 
 print("density matrix", max_x, "by ", max_y)
 
-density = np.matrix(np.zeros(shape=(max_x+1, max_y+1)))
+
+density = np.matrix(np.zeros(shape=(max_x, max_y)))
 for line in data:
 	density.itemset((line[5], line[6]), density.item(line[5], line[6])+1)
 print(density)
 
 np.savetxt("density.csv", density, delimiter=",", fmt="%05d")
+
 
 
 
