@@ -1,6 +1,61 @@
 import csv
 import numpy as np
 from datetime import datetime
+from sympy.solvers import solve
+from sympy import Symbol
+
+
+
+
+#assigns each pickup to the closest point. delta is the distance between points
+def assign_zones(max_lat, min_lat, max_lon, min_lon, delta, data):
+
+	lat_r = np.arange(min_lat, max_lat, delta)
+	lon_r = np.arange(min_lon, max_lon, delta)
+	lat_range = np.append(lat_r, max_lat)
+	lon_range = np.append(lon_r, max_lon)
+	#prints the list of points
+	print("lat range:", lat_range)
+	print("lon range:", lon_range)
+
+	#line[3] and line[4] are the coordinates of closest point
+	#line[5] and line[6] are numbered coordinates of closest point aka (0,1), (1,0) etc
+	lat_points = {}
+	i=0
+	for lat in lat_range:
+		lat_points[lat]=i
+		i += 1
+	
+	lon_points = {}
+	j=0
+	for lon in lon_range:
+		lon_points[lon]=j
+		j += 1
+
+	for line in data:
+		line.append(0)
+		line.append(0)
+		line.append(0)
+		line.append(0)	
+		for lat in lat_range:
+			if line[1] <= lat + delta/2:
+				line[3] = lat
+				line[5] = lat_points[lat]
+				break
+		for lon in reversed(lon_range):
+			if line[2] <= lon + delta/2:
+				line[4] = lon
+				line[6] = lon_points[lon]
+
+	return
+
+
+
+max_lat = 40.750790
+min_lat = 40.711246
+
+max_lon = -73.977716
+min_lon = -74.008615
 
 
 data = []
@@ -12,58 +67,37 @@ with open('small_uber_dataset.csv', 'r') as f:
 			continue
 		split_line = line.split(',')
 		date_str, lat_str, lon_str, base_str = split_line
-		split_line[0] = datetime.strptime(date_str, '%m/%d/%y %H:%M')
-		split_line[1] = float(lat_str)
-		split_line[2] = float(lon_str)
-		data.append(split_line[0:3])
+		new_line=[None]*3
+		if float(lat_str) < max_lat and float(lat_str) > min_lat and float(lon_str) < max_lon and float(lon_str) > min_lon:
+			new_line[0] = datetime.strptime(date_str, '%m/%d/%y %H:%M')
+			new_line[1] = float(lat_str)
+			new_line[2] = float(lon_str)
+		if (not all(x is None for x in new_line)):
+			data.append(new_line[0:3])
 
-np_data = np.array(data)
-
-#find max & min latitude & longtitude
-max_lat = max(max([np_data[:,1]]))
-min_lat = min(min([np_data[:,1]]))
-
-max_lon = max(max([np_data[:,2]]))
-min_lon = min(min([np_data[:,2]]))
+#print("data", data)
 
 #print(max_lat, min_lat, max_lon, min_lon)
 
-#assigns each pickup to the closest point. delta is the distance between points
-def assign_zones(max_lat, min_lat, max_lon, min_lon, delta, data):
-	lat_range=np.arange(min_lat, max_lat, delta)
-	lon_range=np.arange(min_lon, max_lon, delta)
-
-	#prints the list of points
-	print(lat_range)
-	print(lon_range)
-
-	#line[3] and line[4] are the coordinates of closest point
-	for line in data:
-		line.append(0)
-		line.append(0)	
-		for lat in lat_range:
-			if line[1] <= lat + delta/2:
-				line[3] = lat
-				break
-		for lon in lon_range:
-			if line[2] <= lon + delta/2:
-				line[4] = lon
-				break	
-	return
-
-delta=0.01
+delta = 0.01
+print("delta", delta)
 assign_zones(max_lat, min_lat, max_lon, min_lon, delta, data)
+np_data = np.array(data)
 
-freq = dict()
+max_x = max(max([np_data[:,5]]))
+
+
+max_y = max(max([np_data[:,6]]))
+
+print("density matrix", max_x, "by ", max_y)
+
+density = np.matrix(np.zeros(shape=(max_x+1, max_y+1)))
 for line in data:
-	if (line[3], line[4]) in freq:
-		freq[(line[3], line[4])] += 1
-	else:
-		freq[(line[3], line[4])] = 1
+	density.itemset((line[5], line[6]), density.item(line[5], line[6])+1)
+print(density)
 
-for key in sorted(freq):
-    print(key)
-    print(freq[key])
+np.savetxt("density.csv", density, delimiter=",", fmt="%05d")
+
 
 
 
