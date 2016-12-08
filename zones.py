@@ -105,7 +105,10 @@ density = np.matrix(np.zeros(shape=(max_x, max_y)))
 
 for line in data:
 	density.itemset((line[5], line[6]), density.item(line[5], line[6])+1)
+density=density/22.0
 print(density)
+
+
 
 np.savetxt("density.csv", density, delimiter=",", fmt="%05d")
 
