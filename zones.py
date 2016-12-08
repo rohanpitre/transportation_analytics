@@ -76,8 +76,10 @@ delta = 0.2
 print("delta", delta, " miles")
 
 #convert csv file into a 2D array: datetime, latitude, longtitude
+csv_file = 'apr14-uber-dataset.csv'
+#csv_file = 'small_uber_dataset.csv'
 data = []
-with open('small_uber_dataset.csv', 'r') as f:
+with open(csv_file, 'r') as f:
 	count = 0
 	for line in f:
 		if count == 0:
@@ -87,7 +89,7 @@ with open('small_uber_dataset.csv', 'r') as f:
 		date_str, lat_str, lon_str, base_str = split_line
 		new_line=[None]*3
 		d=datetime.strptime(date_str, '%m/%d/%y %H:%M')
-		if d.hour > 16 and d.hour < 18 and float(lat_str) < max_lat and float(lat_str) > min_lat and float(lon_str) < max_lon and float(lon_str) > min_lon:
+		if d.isoweekday()<=5 and d.hour > 16 and d.hour < 18 and float(lat_str) < max_lat and float(lat_str) > min_lat and float(lon_str) < max_lon and float(lon_str) > min_lon:
 			new_line[0] = d
 			new_line[1] = float(lat_str)
 			new_line[2] = float(lon_str)
