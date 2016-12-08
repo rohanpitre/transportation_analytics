@@ -4,7 +4,6 @@ from datetime import datetime
 import time
 from sympy.solvers import solve
 from sympy import Symbol
-
 import matplotlib.pyplot as plt
 
 #assigns each pickup to the closest point. delta is the distance between points in miles
@@ -110,10 +109,8 @@ print(density)
 
 np.savetxt("density.csv", density, delimiter=",", fmt="%05f")
 
-
-
-
-
+#plotting original points on a map
+#plotting the nodes w/ size of node proportional to #requests assigned to it
 np_data = np.array(data)
 freq = {}
 print((np_data[:,4]).size)
@@ -132,9 +129,8 @@ for key, f in freq.items():
 for key, value in freq.items():
 	print(key)
 	print(freq[key])
-print(freq2)
 
-fig1 = plt.figure()                                                          
+fig1 = plt.figure(1)                                                          
 ax = fig1.add_subplot(1,1,1)
 
 lat_ticks = np.arange(min_lat, max_lat, float("{0:.3f}".format(delta/69)))                                              
@@ -142,16 +138,38 @@ lon_ticks = np.arange(min_lon, max_lon, float("{0:.3f}".format(delta/52.49)))
 
 ax.set_xticks(lon_ticks)                                                                                                 
 ax.set_yticks(lat_ticks)                                                       
+plt.xlabel('Longitude')
+plt.ylabel('Latitude')
 
 im = plt.imread('ny.png')
 implot = plt.imshow(im, extent = [min_lon, max_lon, min_lat, max_lat])
 plt.axis("scaled")
 plt.axis([min_lon, max_lon, min_lat, max_lat])
 
-#plt.plot(np_data[:,2], np_data[:,1], 'ro', markersize=2)
-#plt.show()
-#fig2 = plt.figure()
+plt.title('Scatterplot of Requests')
+
+plt.plot(np_data[:,2], np_data[:,1], 'ro', markersize=2)
+plt.show()
+
+plt.xlabel('Longitude')
+plt.ylabel('Latitude')
+
+
+fig2 = plt.figure(2)
+ax = fig2.add_subplot(1,1,1)
+
+lat_ticks = np.arange(min_lat, max_lat, float("{0:.3f}".format(delta/69)))                                              
+lon_ticks = np.arange(min_lon, max_lon, float("{0:.3f}".format(delta/52.49)))
+ax.set_xticks(lon_ticks)                                                                                                 
+ax.set_yticks(lat_ticks)                                                       
+
+im = plt.imread('ny.png')
+implot = plt.imshow(im, extent = [min_lon, max_lon, min_lat, max_lat])
+plt.axis("scaled")
+plt.axis([min_lon, max_lon, min_lat, max_lat])
 np_freq = np.array(freq2)
+plt.title('Demand at Each Node')
+
 plt.scatter(np_freq[:,0], np_freq[:,1], s = np_freq[:,2])
 plt.show()
 
