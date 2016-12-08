@@ -5,6 +5,7 @@ import time
 from sympy.solvers import solve
 from sympy import Symbol
 
+import matplotlib.pyplot as plt
 
 #assigns each pickup to the closest point. delta is the distance between points in miles
 #returns max index of lat and lon points
@@ -58,7 +59,6 @@ def assign_zones(max_lat, min_lat, max_lon, min_lon, delta, data):
 			if line[2] <= lon + delta_lon/2:
 				line[4] = lon
 				line[6] = lon_points[lon]
-
 	#returns max index of lat and lon points
 	return [i,j]
 
@@ -109,6 +109,54 @@ density=density/22.0
 print(density)
 
 np.savetxt("density.csv", density, delimiter=",", fmt="%05f")
+
+
+
+
+
+np_data = np.array(data)
+freq = {}
+print((np_data[:,4]).size)
+for i in range(0, (np_data[:,4]).size):
+	key = (np_data[i,4], np_data[i,3])
+	print(key)
+	if key in freq:
+		freq[key] += 1
+	else:
+		freq[key] = 1
+
+freq2 = []
+for key, f in freq.items():
+	freq2.append((key[0], key[1], f))
+
+for key, value in freq.items():
+	print(key)
+	print(freq[key])
+print(freq2)
+
+fig1 = plt.figure()                                                          
+ax = fig1.add_subplot(1,1,1)
+
+lat_ticks = np.arange(min_lat, max_lat, float("{0:.3f}".format(delta/69)))                                              
+lon_ticks = np.arange(min_lon, max_lon, float("{0:.3f}".format(delta/52.49)))                                              
+
+ax.set_xticks(lon_ticks)                                                                                                 
+ax.set_yticks(lat_ticks)                                                       
+
+im = plt.imread('ny.png')
+implot = plt.imshow(im, extent = [min_lon, max_lon, min_lat, max_lat])
+plt.axis("scaled")
+plt.axis([min_lon, max_lon, min_lat, max_lat])
+
+#plt.plot(np_data[:,2], np_data[:,1], 'ro', markersize=2)
+#plt.show()
+#fig2 = plt.figure()
+np_freq = np.array(freq2)
+plt.scatter(np_freq[:,0], np_freq[:,1], s = np_freq[:,2])
+plt.show()
+
+
+
 
 
 
