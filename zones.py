@@ -108,9 +108,7 @@ for line in data:
 density=density/22.0
 print(density)
 
-
-
-np.savetxt("density.csv", density, delimiter=",", fmt="%05d")
+np.savetxt("density.csv", density, delimiter=",", fmt="%05f")
 
 
 
